@@ -56,6 +56,11 @@ namespace Nofun.Module.VMusic
             }
         }
 
+        private bool DoesControlRequireInstance(NativeMusicControlCode control)
+        {
+            return (control != NativeMusicControlCode.OutputVolume) && (control != NativeMusicControlCode.MasterVolume);
+        }
+
         [ModuleCall]
         private int vMusicLoad(int handle, int type)
         {
@@ -94,8 +99,11 @@ namespace Nofun.Module.VMusic
             IMusic musicPiece = musicContainer.Get(handle);
             if (musicPiece == null)
             {
-                Logger.Error(LogClass.VSound, $"Music handle={handle} is invalid! Control failed!");
-                return MUSIC_ERR;
+                if (DoesControlRequireInstance(control))
+                {
+                    Logger.Error(LogClass.VMusic, $"Music handle={handle} is invalid! Control {control} failed!");
+                    return MUSIC_ERR;
+                }
             }
 
             switch (control)
