@@ -15,6 +15,7 @@
  */
 
 using Nofun.Driver.Audio;
+using Nofun.Module.VMStream;
 using Nofun.Util.Logging;
 using Nofun.VM;
 using System;
@@ -34,6 +35,13 @@ namespace Nofun.Module.VSound
         private VMSystem system;
         private SimpleObjectManager<IPcmSound> soundManager;
 
+        private enum LoadType : uint
+        {
+            Stream = 0,
+            Resource = 1,
+            File = 2
+        }
+
         public VSound(VMSystem system)
         {
             this.system = system;
@@ -49,6 +57,50 @@ namespace Nofun.Module.VSound
             }
 
             return SND_OK;
+        }
+
+        [ModuleCall]
+        private int vSoundLoad(int handle, int type)
+        {
+            try
+            {
+                switch ((LoadType)type)
+                {
+                    case LoadType.Resource:
+                        {
+                            IVMHostStream stream = system.VMStreamModule.Open("", (uint)StreamFlags.Read | (uint)StreamType.Resource | (uint)(handle << 16));
+                            if (stream != null)
+                            {
+                                StandardStreamVM standardStream = new StandardStreamVM(stream);
+                                Span<byte> header = stackalloc byte[Marshal.SizeOf<NativeSoundHeader>()];
+                                standardStream.Read(header);
+
+                                Span<NativeSoundHeader> soundHeader = MemoryMarshal.Cast<byte, NativeSoundHeader>(header);
+                                Span<byte> soundData = new byte[(int)soundHeader[0].bodySize];
+                                standardStream.Read(soundData);
+
+                                IPcmSound soundFromDriver = system.AudioDriver.LoadPCMSound(soundData, soundHeader[0].priority,
+                                   (int)soundHeader[0].frequency, soundHeader[0].channelCount,
+                                   soundHeader[0].bitsPerSample, soundHeader[0].format == (uint)NativeVSndFormat.ADPCM);
+
+                                return soundManager.Add(soundFromDriver);
+                            }
+
+                            break;
+                        }
+
+                    default:
+                        {
+                            throw new NotImplementedException($"Unsupported sound load type {type}");
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(LogClass.VSound, $"Failed to load sound (err={ex.ToString()}");
+            }
+
+            return SND_ERR;
         }
 
         [ModuleCall]
