@@ -16,6 +16,7 @@ namespace Nofun.Module.VSound
         Parameters = 11,
         MasterVolume = 12,
         Priority = 13,
-        ChannelCount = 14
+        ChannelCount = 14,
+        Unknown19  = 19
     }
 }

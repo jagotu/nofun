@@ -25,6 +25,8 @@ namespace Nofun.Driver.Audio
         void Resume();
         void Play();
 
+        bool IsPlaying();
+
         float Volume { get; set; }
         float Frequency { get; set; }
     }

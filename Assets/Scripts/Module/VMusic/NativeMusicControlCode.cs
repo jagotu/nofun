@@ -23,6 +23,9 @@ namespace Nofun.Module.VMusic
         Stop = 2,
         Pause = 3,
         Resume = 4,
-        Volume = 5
+        Volume = 5,
+        OutputVolume = 10,
+        MasterVolume = 12
+
     }
 }

@@ -145,7 +145,8 @@ namespace Nofun.Module.VSound
 
         private bool DoesControlRequireInstance(NativeSoundControlCode control)
         {
-            return (control != NativeSoundControlCode.MasterVolume) && (control != NativeSoundControlCode.ChannelCount);
+            return (control != NativeSoundControlCode.MasterVolume) && (control != NativeSoundControlCode.ChannelCount) &&
+                (control != NativeSoundControlCode.Unknown19);
         }
 
         [ModuleCall]

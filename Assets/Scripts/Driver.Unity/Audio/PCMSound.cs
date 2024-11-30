@@ -115,6 +115,16 @@ namespace Nofun.Driver.Unity.Audio
             });
         }
 
+        public bool IsPlaying()
+        {
+            bool isPlaying = false;
+            JobScheduler.Instance.RunOnUnityThreadSync(() =>
+            {
+                isPlaying = source.isPlaying;
+            });
+            return isPlaying;
+        }
+
         public float Volume
         {
             get => source.volume;
