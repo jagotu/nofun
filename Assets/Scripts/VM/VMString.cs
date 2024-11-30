@@ -16,6 +16,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Nofun.VM
 {
@@ -56,12 +57,21 @@ namespace Nofun.VM
             return value;
         }
 
-        public void Set(VMMemory memory, string value)
+        public void Set(VMMemory memory, string value, bool isUtf16 = false)
         {
-            var destSpan = memory.GetMemorySpan((int)address, value.Length + 1);
-            value.AsSpan().CopyTo(MemoryMarshal.Cast<byte, char>(destSpan));
+            byte[] bytes;
+            if (isUtf16)
+            {
+                bytes = Encoding.Unicode.GetBytes(value);
+            } else
+            {
+                bytes = Encoding.ASCII.GetBytes(value);
+            }
+                
+            var destSpan = memory.GetMemorySpan((int)address, bytes.Length + 1);
+            bytes.AsSpan().CopyTo(destSpan);
 
-            destSpan[value.Length] = 0;
+            destSpan[bytes.Length] = 0;
         }
     }
 }

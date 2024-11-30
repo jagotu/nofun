@@ -18,6 +18,8 @@ using Nofun.Util.Logging;
 using Nofun.Util.Allocator;
 using Nofun.Settings;
 using Nofun.VM;
+using Nofun.PIP2;
+using Nofun.Util;
 
 namespace Nofun.Module.VMGP
 {
@@ -49,12 +51,15 @@ namespace Nofun.Module.VMGP
         private void DbgPrintf(VMString message)
         {
             // TODO: A mechanism to handle printf arguments
-            Logger.Debug(LogClass.GameTTY, message.Get(system.Memory));
+            Logger.Debug(LogClass.GameTTY, PrintfUtil.sprintf(message.Get(system.Memory), system.Processor.Reg[Register.SP], system.Memory));
         }
 
         [ModuleCall]
-        private void vSprintf(VMPtr<byte> buf, VMString message)
+        private void vSprintf(VMString buf, VMString message)
         {
+            string formatted = PrintfUtil.sprintf(message.Get(system.Memory), system.Processor.Reg[Register.SP], system.Memory);
+            Logger.Trace(LogClass.VMGPSystem, $"vSprintf ${message.Get(system.Memory)} -> ${formatted}");
+            buf.Set(system.Memory, formatted);
         }
 
         [ModuleCall]
