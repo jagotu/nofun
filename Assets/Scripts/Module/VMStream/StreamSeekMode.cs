@@ -20,6 +20,7 @@ namespace Nofun.Module.VMStream
     {
         Set = 0,
         Cur = 1,
-        End = 2
+        End = 2,
+        Resource = 3 //Symbian runtime specific
     }
 }

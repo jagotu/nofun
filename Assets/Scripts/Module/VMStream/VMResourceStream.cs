@@ -29,6 +29,7 @@ namespace Nofun.Module.VMStream
         private uint resourceNumber = 0;
         private VMGPExecutable executable;
         private FileStream groundStream;
+        private string baseResourcePath;
 
         private uint mode;
         private string filePath;
@@ -40,9 +41,15 @@ namespace Nofun.Module.VMStream
 
         public VMResourceStream(VMGPExecutable executable, string baseStorePath, uint resourceNumber, uint mode)
         {
-            string baseResourcePath = Path.Join(baseStorePath, "__Resources");
+            baseResourcePath = Path.Join(baseStorePath, "__Resources");
             Directory.CreateDirectory(baseResourcePath);
+            this.executable = executable;
+            this.mode = mode;
+            SeekToResource(resourceNumber);
+        }
 
+        public void SeekToResource(uint resourceNumber)
+        {
             this.filePath = Path.Join(baseResourcePath, $"{resourceNumber:X8}");
 
             try
@@ -54,8 +61,7 @@ namespace Nofun.Module.VMStream
                 // Nothing yet
             }
 
-            this.executable = executable;
-            this.mode = mode;
+            this.currentPointer = 0;
             this.resourceNumber = resourceNumber;
             this.maxSize = executable.GetResourceSize(resourceNumber);
         }

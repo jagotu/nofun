@@ -40,6 +40,10 @@ namespace Nofun.Module.VMStream
 
         public IVMHostStream Open(string fileName, uint mode)
         {
+            // Symbian absolute paths include drive letters in them, this allows us to
+            // use them as relative
+            fileName = fileName.Replace(":", "");
+
             StreamType wantedType = (StreamType)(mode & 0xFF);
             IVMHostStream targetedStream;
 
@@ -113,6 +117,20 @@ namespace Nofun.Module.VMStream
         private int vStreamSeek(int handle, int where, StreamSeekMode whence)
         {
             IVMHostStream stream = streams.Get(handle);
+
+            if (whence == StreamSeekMode.Resource)
+            {
+                // N-Gage/Symbian native Mophuns have a special seek mode 3 which should seek to a specific resource
+                VMResourceStream vMResourceStream = stream as VMResourceStream;
+                if(vMResourceStream == null)
+                {
+                    Logger.Error(LogClass.VMStream, $"Attempted to resource-seek a non-resource stream.");
+                    return -1;
+                }
+                vMResourceStream.SeekToResource((uint)where);
+                return 0;
+            }
+
             if (stream == null)
             {
                 return -1;
