@@ -205,6 +205,9 @@ namespace Nofun.Module.VSound
                 case NativeSoundControlCode.StopLooping:
                     break;
 
+                case NativeSoundControlCode.Status:
+                    return soundPcm.IsPlaying() ? 1 : 2;
+
                 default:
                     Logger.Error(LogClass.VSound, $"Unimplemented sound control command: {control}");
                     return SND_ERR;
