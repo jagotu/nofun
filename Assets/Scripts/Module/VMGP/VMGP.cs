@@ -74,5 +74,15 @@ namespace Nofun.Module.VMGP
         {
             system.Stop();
         }
+
+        [ModuleCall]
+        private int vAbs(int val)
+        {
+            if (val < 0)
+            {
+                return -val;
+            }
+            return val;
+        }
     }
 }
